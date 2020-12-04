@@ -1,0 +1,196 @@
+'CR1000 Series Datalogger - SCCII_Sapflow
+'v0.9
+'Logging on CR1000 with Dynamax Flow32 Gages on AM416 Multiplexer. 8 Pointdendrometers on CR1000 SE channels 5-13
+'date: 2020-12-13
+'program author: David Basler 
+
+' WIRING:
+
+'AM416                   CR1000
+'COM H1------------------1H
+'COM L1------------------1L
+'COM H2------------------2H
+'COM L1------------------2H
+'12V---------------------12V
+'CLK---------------------C1
+'RES---------------------C2
+'GND---------------------G
+'COM_SHIELD-------------- |(Ground)
+'                         =
+'AM416-Sensors Wired according to Dynamax standard
+
+'Dynamx AVR              CR1000
+'CLine-------------------C7
+'
+'Dendrometers            CR1000
+'green-------------------VX2
+'red--------------------- SE Channels 9-16
+'yellow------------------|(Ground)
+'                        =
+
+'NOTES
+' Time intervals for logging need to be adjusted
+' No Power-down mode is programmed, it will run 24/7
+
+Dim LCount_4
+'Declare Variables and Units
+Public PTemp,BattV
+Public CH(8) 'Dynagages on AM416
+Public AH(8) 'Dynagages on AM416
+Public BH(8) 'Dynagages on AM416
+Public Vin(8) 'Dynagages on AM416
+Public Vpdm(8) 'Dendrometer on CR1000 9-16
+
+Units BattV=Volts
+Units PTemp=Deg C
+Units CH()=mV
+Units AH()=mV
+Units BH()=mV
+Units Vin()=Volts
+
+Units Vpdm()=Volts
+
+'Declare Constants
+Const Uex2 = 2500.0         'Exitation Voltage
+
+'Data Tables
+DataTable (SCCII_SapflowData,1,1000)
+    'CardOut (0,10000)  ' Write to CF
+		DataInterval(0,10,Min,10)
+  	Sample(1,BattV,FP2)
+	    FieldNames ("U_Batt")
+ 	  Sample(1,PTemp,FP2)
+        FieldNames ("T_Panel")
+        
+	  'Dynagage 1
+    Average(1,CH(1),IEEE4, false)
+        FieldNames ("CH_gage01")
+    Average(1,AH(1),IEEE4, false)
+        FieldNames ("AH_gage01")
+    Average(1,BH(1),IEEE4, false)
+        FieldNames ("BH_gage01")
+    Average(1,Vin(1),IEEE4, false)
+        FieldNames ("Vin_gage01")
+	  'Dynagage 3
+    Average(1,CH(2),IEEE4, false)
+        FieldNames ("CH_gage02")
+    Average(1,AH(2),IEEE4, false)
+        FieldNames ("AH_gage02")
+    Average(1,BH(2),IEEE4, false)
+        FieldNames ("BH_gage02")
+    Average(1,Vin(2),IEEE4, false)
+        FieldNames ("Vin_gage02")
+	  'Dynagage 3
+    Average(1,CH(3),IEEE4, false)
+        FieldNames ("CH_gage03")
+    Average(1,AH(3),IEEE4, false)
+        FieldNames ("AH_gage03")
+    Average(1,BH(3),IEEE4, false)
+        FieldNames ("BH_gage03")
+    Average(1,Vin(3),IEEE4, false)
+        FieldNames ("Vin_gage03")
+	  'Dynagage 4
+    Average(1,CH(4),IEEE4, false)
+        FieldNames ("CH_gage04")
+    Average(1,AH(4),IEEE4, false)
+        FieldNames ("AH_gage04")
+    Average(1,BH(4),IEEE4, false)
+        FieldNames ("BH_gage04")
+    Average(1,Vin(4),IEEE4, false)
+        FieldNames ("Vin_gage04")
+	  'Dynagage 5
+    Average(1,CH(5),IEEE4, false)
+        FieldNames ("CH_gage05")
+    Average(1,AH(5),IEEE4, false)
+        FieldNames ("AH_gage05")
+    Average(1,BH(5),IEEE4, false)
+        FieldNames ("BH_gage05")
+    Average(1,Vin(5),IEEE4, false)
+        FieldNames ("Vin_gage05")
+	  'Dynagage 6
+    Average(1,CH(6),IEEE4, false)
+        FieldNames ("CH_gage06")
+    Average(1,AH(6),IEEE4, false)
+        FieldNames ("AH_gage06")
+    Average(1,BH(6),IEEE4, false)
+        FieldNames ("BH_gage06")
+    Average(1,Vin(6),IEEE4, false)
+        FieldNames ("Vin_gage06")
+	  'Dynagage 7
+    Average(1,CH(7),IEEE4, false)
+        FieldNames ("CH_gage07")
+    Average(1,AH(7),IEEE4, false)
+        FieldNames ("AH_gage07")
+    Average(1,BH(7),IEEE4, false)
+        FieldNames ("BH_gage07")
+    Average(1,Vin(7),IEEE4, false)
+        FieldNames ("Vin_gage07")
+	  'Dynagage 8
+    Average(1,CH(8),IEEE4, false)
+        FieldNames ("CH_gage08")
+    Average(1,AH(8),IEEE4, false)
+        FieldNames ("AH_gage08")
+    Average(1,BH(8),IEEE4, false)
+        FieldNames ("BH_gage08")
+    Average(1,Vin(8),IEEE4, false)
+        FieldNames ("Vin_gage08")
+        
+   'Dendrometer 1
+    Average(1,Vpdm(1),IEEE4, false)
+        FieldNames ("PDM_01")
+   'Dendrometer 2
+    Average(1,Vpdm(2),IEEE4, false)
+        FieldNames ("PDM_02")
+   'Dendrometer 3
+    Average(1,Vpdm(3),IEEE4, false)
+        FieldNames ("PDM_03")
+   'Dendrometer 4
+    Average(1,Vpdm(4),IEEE4, false)
+        FieldNames ("PDM_04")
+   'Dendrometer 5
+    Average(1,Vpdm(5),IEEE4, false)
+        FieldNames ("PDM_05")
+   'Dendrometer 6
+    Average(1,Vpdm(6),IEEE4, false)
+        FieldNames ("PDM_06")
+   'Dendrometer 7
+    Average(1,Vpdm(7),IEEE4, false)
+        FieldNames ("PDM_07")
+   'Dendrometer 8
+    Average(1,Vpdm(8),IEEE4, false)
+        FieldNames ("PDM_08")
+EndTable
+
+
+
+'Main Program
+BeginProg
+	Scan(1,Min,1,0)
+		'Default Datalogger Battery Voltage measurement BattV
+		Battery(BattV)
+		PanelTemp(PTemp,_50Hz)
+		
+		PortSet(2,1) 'Turn AM416 Multiplexer On
+		LCount_4=1
+		SubScan(0,uSec,4)
+          PulsePort(1,10000) 'Switch to next AM416 Multiplexer channel  
+			    VoltDiff(CH(LCount_4),2,mV2_5,1,True,0,_50Hz,1,0) '  CH  2.5mV Differential Voltage measurements on the AM416 Multiplexer
+          PulsePort(1,10000) 'Switch to next AM416 Multiplexer channel  
+			    VoltDiff(AH(LCount_4),2,mV2_5,1,True,0,_50Hz,1,0) '  AH  2.5mV Differential Voltage measurements on the AM416 Multiplexer
+          PulsePort(1,10000) 'Switch to next AM416 Multiplexer channel  
+			    VoltDiff(BH(LCount_4),2,mV2_5,1,True,0,_50Hz,1,0) '  BH 2.5mV Differential Voltage measurements on the AM416 Multiplexer
+   			  PulsePort(1,10000) 'Switch to next AM416 Multiplexer channel
+			    VoltDiff(Vin(LCount_4),2,mV2500C,1,True,0,_50Hz,1,0) ' VIN 2500 mV Differential Voltage measurements on the AM416 Multiplexer
+          LCount_4=LCount_4+2
+		NextSubScan
+		PortSet(2,0) 'Turn AM416 Multiplexer Off
+		
+     ' Read Dendrometers
+		  ExciteV (Vx2,Uex2,0) 'Voltage Exitation for all dendrometers
+		  VoltSe(Vpdm(),8,mV2500C,9,True,0,_50Hz,1,0) ' 2500mv check open
+		'Call Data Tables and Store Data
+		CallTable SCCII_SapflowData
+	NextScan
+EndProg
+
+
