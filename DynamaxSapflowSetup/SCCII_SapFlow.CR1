@@ -31,8 +31,12 @@
 'NOTES
 ' Time intervals for logging need to be adjusted
 ' No Power-down mode is programmed, it will run 24/7
+' Added template for RS232 communication
 
 Dim LCount_4
+
+
+
 'Declare Variables and Units
 Public PTemp,BattV
 Public CH(8) 'Dynagages on AM416
@@ -40,6 +44,8 @@ Public AH(8) 'Dynagages on AM416
 Public BH(8) 'Dynagages on AM416
 Public Vin(8) 'Dynagages on AM416
 Public Vpdm(8) 'Dendrometer on CR1000 9-16
+
+Public OutString$ As String * 480 'String for GetRecord Results to send over RS232
 
 Units BattV=Volts
 Units PTemp=Deg C
@@ -165,6 +171,8 @@ EndTable
 
 'Main Program
 BeginProg
+	'Open the Serial Port (if we attach a serial wireless module)
+	SerialOpen (COM4,9600,0,0,10000) ' TXRX on C7 C8
 	Scan(1,Min,1,0)
 		'Default Datalogger Battery Voltage measurement BattV
 		Battery(BattV)
@@ -172,24 +180,32 @@ BeginProg
 		
 		PortSet(2,1) 'Turn AM416 Multiplexer On
 		LCount_4=1
-		SubScan(0,uSec,4)
+		SubScan(0,uSec,8) 'Side A
           PulsePort(1,10000) 'Switch to next AM416 Multiplexer channel  
-			    VoltDiff(CH(LCount_4),2,mV2_5,1,True,0,_50Hz,1,0) '  CH  2.5mV Differential Voltage measurements on the AM416 Multiplexer
+			    VoltDiff(CH(LCount_4),1,mV2_5,1,True,0,_50Hz,1,0)    ' CH  2.5mV Differential Voltage measurements on the AM416 Multiplexer
+			    VoltDiff(AH(LCount_4),1,mV2_5,2,True,0,_50Hz,1,0)    ' AH  2.5mV Differential Voltage measurements on the AM416 Multiplexer
           PulsePort(1,10000) 'Switch to next AM416 Multiplexer channel  
-			    VoltDiff(AH(LCount_4),2,mV2_5,1,True,0,_50Hz,1,0) '  AH  2.5mV Differential Voltage measurements on the AM416 Multiplexer
-          PulsePort(1,10000) 'Switch to next AM416 Multiplexer channel  
-			    VoltDiff(BH(LCount_4),2,mV2_5,1,True,0,_50Hz,1,0) '  BH 2.5mV Differential Voltage measurements on the AM416 Multiplexer
-   			  PulsePort(1,10000) 'Switch to next AM416 Multiplexer channel
-			    VoltDiff(Vin(LCount_4),2,mV2500C,1,True,0,_50Hz,1,0) ' VIN 2500 mV Differential Voltage measurements on the AM416 Multiplexer
-          LCount_4=LCount_4+2
+			    VoltDiff(BH(LCount_4),1,mV2_5,1,True,0,_50Hz,1,0)    ' BH 2.5mV Differential Voltage measurements on the AM416 Multiplexer
+			    VoltDiff(Vin(LCount_4),1,mV2500C,2,True,0,_50Hz,1,0) ' VIN 2500 mV Differential Voltage measurements on the AM416 Multiplexer
+          LCount_4=LCount_4+1
 		NextSubScan
 		PortSet(2,0) 'Turn AM416 Multiplexer Off
 		
      ' Read Dendrometers
 		  ExciteV (Vx2,Uex2,0) 'Voltage Exitation for all dendrometers
 		  VoltSe(Vpdm(),8,mV2500C,9,True,0,_50Hz,1,0) ' 2500mv check open
+		  
+     ' Send last data record data over RS232  
+	 ' If the table has output, get the latest record
+	If SCCII_SapflowData.Output(1,1) Then
+		GetRecord (OutString$,SCCII_SapflowData,1)
+		'Send it out the serial port
+		SerialOut (COMRS232,OutString$,"",0,100)
+	EndIf	
+
 		'Call Data Tables and Store Data
 		CallTable SCCII_SapflowData
+
 	NextScan
 EndProg
 
