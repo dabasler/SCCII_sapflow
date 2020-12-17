@@ -62,7 +62,7 @@ Const Uex2 = 2500.0         'Exitation Voltage
 'Data Tables
 DataTable (SCCII_SapflowData,1,1000)
     'CardOut (0,10000)  ' Write to CF
-		DataInterval(0,10,Min,10)
+		DataInterval(0,2,Min,10)
   	Sample(1,BattV,FP2)
 	    FieldNames ("U_Batt")
  	  Sample(1,PTemp,FP2)
@@ -173,7 +173,7 @@ EndTable
 BeginProg
 	'Open the Serial Port (if we attach a serial wireless module)
 	SerialOpen (COM4,9600,0,0,10000) ' TXRX on C7 C8
-	Scan(1,Min,1,0)
+	Scan(30,Sec,1,0)
 		'Default Datalogger Battery Voltage measurement BattV
 		Battery(BattV)
 		PanelTemp(PTemp,_50Hz)
