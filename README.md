@@ -1,7 +1,10 @@
 # SCCII_sapflow
 Code for Setup and Analysis of the Forest Canopy Sapflow experiment 2021
 
--- Details follow --
+DynamaxSapflowSetup: Program to setup CR1000 logger (connected to to an AM416 multiplexer).
+DynaGageR: R script to calculate sap flow rates from raw Voltage measurements.
+
+-- More details follow --
 
 ### Links
 [Dynamax Manuals](https://dynamax.com/technical-center/manuals/transpiration-sap-flow)

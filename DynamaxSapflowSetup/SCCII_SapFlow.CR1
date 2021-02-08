@@ -62,7 +62,7 @@ Const Uex2 = 2500.0         'Exitation Voltage
 'Data Tables
 DataTable (SCCII_SapflowData,1,1000)
     'CardOut (0,10000)  ' Write to CF
-		DataInterval(0,2,Min,10)
+		DataInterval(0,4,Min,10)
   	Sample(1,BattV,FP2)
 	    FieldNames ("U_Batt")
  	  Sample(1,PTemp,FP2)
@@ -173,7 +173,7 @@ EndTable
 BeginProg
 	'Open the Serial Port (if we attach a serial wireless module)
 	SerialOpen (COM4,9600,0,0,10000) ' TXRX on C7 C8
-	Scan(30,Sec,1,0)
+	Scan(1,Min,1,0)
 		'Default Datalogger Battery Voltage measurement BattV
 		Battery(BattV)
 		PanelTemp(PTemp,_50Hz)
@@ -197,14 +197,29 @@ BeginProg
 		  
      ' Send last data record data over RS232  
 	 ' If the table has output, get the latest record
-	If SCCII_SapflowData.Output(1,1) Then
-		GetRecord (OutString$,SCCII_SapflowData,1)
+	  If SCCII_SapflowData.Output(1,1) Then
+	  	GetRecord (OutString$,SCCII_SapflowData,1)
 		'Send it out the serial port
 		SerialOut (COMRS232,OutString$,"",0,100)
-	EndIf	
+	  EndIf	
 
-		'Call Data Tables and Store Data
-		CallTable SCCII_SapflowData
+	 ' Download the full table over RS232
+      If SerialInChk(ComRS232) > 0 Then 
+        SerialIn (InString,ComRS232,100,0,20)
+        SerialOut (COMRS232,"#TABLE BACKUP\n","",0,100)
+        If StrComp(InString, "#ALL") = 0 Then  
+          Counter = 1
+          Do While Counter < Test.Record(1,1)
+             GetRecord (OutString$,Test,Counter)
+             SerialOut (COMRS232,OutString$,"",0,100)
+             Counter = Counter + 1
+          Loop    
+        EndIf
+        SerialFlush (ComRS232)
+      EndIf
+	
+	  'Call Data Tables and Store Data
+	  CallTable SCCII_SapflowData
 
 	NextScan
 EndProg
