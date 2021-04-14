@@ -45,7 +45,9 @@ Public BH(8) 'Dynagages on AM416
 Public Vin(8) 'Dynagages on AM416
 Public Vpdm(8) 'Dendrometer on CR1000 9-16
 
-Public OutString$ As String * 480 'String for GetRecord Results to send over RS232
+Public OutString$ As String * 400 'String for GetRecord Results
+Public InString As String * 100
+Dim Counter
 
 Units BattV=Volts
 Units PTemp=Deg C
@@ -62,7 +64,7 @@ Const Uex2 = 2500.0         'Exitation Voltage
 'Data Tables
 DataTable (SCCII_SapflowData,1,1000)
     'CardOut (0,10000)  ' Write to CF
-		DataInterval(0,4,Min,10)
+		DataInterval(0,5,Min,10)
   	Sample(1,BattV,FP2)
 	    FieldNames ("U_Batt")
  	  Sample(1,PTemp,FP2)
@@ -172,7 +174,7 @@ EndTable
 'Main Program
 BeginProg
 	'Open the Serial Port (if we attach a serial wireless module)
-	SerialOpen (COM4,9600,0,0,10000) ' TXRX on C7 C8
+	SerialOpen (COMRS232,9600,0,0,10000)
 	Scan(1,Min,1,0)
 		'Default Datalogger Battery Voltage measurement BattV
 		Battery(BattV)
@@ -209,8 +211,8 @@ BeginProg
         SerialOut (COMRS232,"#TABLE BACKUP\n","",0,100)
         If StrComp(InString, "#ALL") = 0 Then  
           Counter = 1
-          Do While Counter < Test.Record(1,1)
-             GetRecord (OutString$,Test,Counter)
+          Do While Counter < SCCII_SapflowData.Record(1,1)
+             GetRecord (OutString$,SCCII_SapflowData,Counter)
              SerialOut (COMRS232,OutString$,"",0,100)
              Counter = Counter + 1
           Loop    

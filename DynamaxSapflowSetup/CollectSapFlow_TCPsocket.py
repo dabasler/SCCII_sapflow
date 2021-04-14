@@ -63,7 +63,7 @@ def reconnect():
 			print("unreachable host")
 		else:			
 			print('Connected to TCPsocket %s:%s @%s' % (HOST,PORT,LOGGER))
-			backupfilename= "%s_backup_%s.txt" % (LOGGER,dt.strftime("%Y-%m/%d"))
+			backupfilename= "%s_backup_%s.txt" % (LOGGER,dt.strftime("%Y-%m-%d"))
 			getAll(backupfilename)
 			return
 
@@ -92,7 +92,7 @@ while 1:
 		f.write(data)
 		f.close()
 	if not dt==date.today():
-		backupfilename= "%s_backup_%s.txt" % (LOGGER,dt.strftime("%Y-%m/%d"))
+		backupfilename= "%s_backup_%s.txt" % (LOGGER,dt.strftime("%Y-%m-%d"))
 		getAll(backupfilename)
 		dt = date.today()
 
