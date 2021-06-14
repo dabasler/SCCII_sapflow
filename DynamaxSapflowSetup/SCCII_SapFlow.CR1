@@ -211,7 +211,7 @@ BeginProg
         SerialOut (COMRS232,"#TABLE BACKUP\n","",0,100)
         If StrComp(InString, "#ALL") = 0 Then  
           Counter = 1
-          Do While Counter < SCCII_SapflowData.Record(1,1)
+          Do While Counter < SCCII_SapflowData.TableSize(1,1)
              GetRecord (OutString$,SCCII_SapflowData,Counter)
              SerialOut (COMRS232,OutString$,"",0,100)
              Counter = Counter + 1

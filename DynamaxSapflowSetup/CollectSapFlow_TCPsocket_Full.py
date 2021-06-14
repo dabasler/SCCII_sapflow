@@ -7,7 +7,7 @@
 # Code by David Basler 2021
 import sys
 import socket
-from datetime import date
+from datetime import datetime
 
 HOST = '192.168.0.58'  # The server's hostname or IP address
 PORT = 8899            # The port used by the server
@@ -16,24 +16,26 @@ LOGGER="TEST"
 # Get all commandline arguments
 if len(sys.argv)<4:
 	sys.exit("usage python %s [HOST] [PORT] [LOGGER]",)
-	HOST=sys.argv[1]
-	PORT=sys.argv[2]
-	LOGGER=sys.argv[3]
 
-interval=15 #in seconds
+HOST=sys.argv[1]
+PORT=int(sys.argv[2])
+LOGGER=sys.argv[3]
+
 bufferlen=1024
 
 outfilename= "%s_data.txt" % LOGGER
-timeout=interval+5
+timeout=20.0
 maxlost=3
 lost=0
-dt = date.today()
+dt = datetime.today()
+
+print("%s@%s:%i" % (LOGGER,HOST,PORT))
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def getAll(outfilename):
-	s.settimeout(3.0)
-	#Request All data
+	s.settimeout(120.0)
+	print("Request All data")
 	s.sendall(b'#ALL')
 	counter=0
 	while 1:
@@ -44,7 +46,7 @@ def getAll(outfilename):
 			print ("Backed-up %s rows" % counter) 
 			return
 		if len(data) > 0:
-			#print (data)
+			print (data)
 			f=open(outfilename,'a',newline='')
 			data=data.decode().replace("\r","")
 			f.write(data)
@@ -63,36 +65,14 @@ def reconnect():
 			print("unreachable host")
 		else:			
 			print('Connected to TCPsocket %s:%s @%s' % (HOST,PORT,LOGGER))
-			backupfilename= "%s_backup_%s.txt" % (LOGGER,dt.strftime("%Y-%m-%d"))
-			getAll(backupfilename)
 			return
-
 
 reconnect()
 
-while 1:
-	s.settimeout(timeout)
-	data=''
-	try:
-		data = s.recv(bufferlen)
-	except socket.timeout:
-		lost=lost+1
-		print("no data")
-	except ConnectionResetError:
-		reconnect()
-	except ConnectionAbortedError:
-		reconnect()
-	if lost>maxlost:
-		reconnect()
-		lost=0
-	if len(data) > 0:
-		print (data)
-		f=open(outfilename,'a',newline='')
-		data=data.decode().replace("\r","")
-		f.write(data)
-		f.close()
-	if not dt==date.today(): #midnight Backup
-		backupfilename= "%s_backup_%s.txt" % (LOGGER,dt.strftime("%Y-%m-%d"))
-		getAll(backupfilename)
-		dt = date.today()
+s.settimeout(timeout)
+backupfilename= "%s_backup_%s.txt" % (LOGGER,dt.strftime("%Y-%m-%d_%H%M"))
+getAll(backupfilename)
+print ("all none")
+s.close()
+sys.exit()
 
